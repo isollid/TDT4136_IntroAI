@@ -1,4 +1,5 @@
 from PIL import Image
+from glob import glob
 
 class Board:
     """
@@ -16,17 +17,17 @@ class Cell:
     """
     Will represent one node in the given board.
     """
-    def __init__(self, x, y, is_wall):
+    def __init__(self, x, y, is_wall,cost):
         self.x = x
         self.y = y
         self.is_wall = is_wall
+        self.cost = cost
 
         self.children = []
         self.parent = None
         self.g = float('inf')   # g(s) -> cost for path so far
         self.h = None           # h(s) -> estimated value for the cost of the remaining path
         self.is_end = False
-        self.cost = 1
 
     """
     Estimated total cost for a path going through this node
@@ -47,8 +48,14 @@ class Cell:
 """
 Makes a board from a text file into a Board object that contains a list that hold all the cells and some other
 relevant information
+w Water 100
+m Mountains 50
+f Forests 10
+g Grasslands 5
+r Roads 1
 """
 def make_board(path):
+    costs = {"w": 100, "m": 50, "f": 10, "g": 5, "r": 1}
     cells = []
     start, end = None, None
     file = open(path,"r")
@@ -57,7 +64,8 @@ def make_board(path):
     for y in range(len(lines)):
         for x in range(len(lines[y])):
             sign = lines[y][x]
-            cell = Cell(x, y, True) if sign == "#" else Cell(x,y,False)
+            cost = costs[sign] if sign in costs.keys() else 1
+            cell = Cell(x, y, True,cost) if sign == "#" else Cell(x,y,False,cost)
             if sign == "A":
                 start = cell
                 continue
@@ -92,7 +100,7 @@ def a_star_loop(board):
         board.closed_nodes.append(current_cell)
 
         if current_cell.is_end:
-            print("end")
+            print("A* finished")
             return True # Success
 
         set_all_successors(current_cell,board.cells)  # Sets all the neighbours
@@ -145,7 +153,8 @@ def draw_path(board,path):
     height = len(board)
     width = len(board[0])
     # Map from sign on board to color
-    map = {"A":(255,0,0), "B":(0,255,0), ".":(255,255,255), "O":(0,0,255), "#":(0,0,0)}
+    map = {"A":(255,0,0), "B":(152,0,255), ".":(255,255,255), "O":(255,255,0), "#":(0,0,0),
+           "w":(60,80,255),"m": (166, 166, 166), "f": (0, 131, 0), "g": (0, 255, 114), "r": (211, 123, 59)}
     mapped = []
     for x in range(height):
         for y in range(width):
@@ -155,9 +164,11 @@ def draw_path(board,path):
     image.save(path)
 
 
-def main():
+"""
+Method for using astar and making image from one text file
+"""
+def find_shortpath_make_img(board_path):
     # Build the board
-    board_path = "./boards/board-1-4.txt"
     board, old_text_board = make_board(board_path)
     # Set some init values
     start, end = board.start, board.end
@@ -170,18 +181,29 @@ def main():
     if a_star_loop(board):
         # Start in the end, and get the parent backwards to start
         cell = board.end
+        # I make a copy so that it easy to compare the unsolved board with the solved board
+        copy = old_text_board.copy()
+        wall = ["#"*len(copy[0])]  # Used to separate the unsolved board and the solved board
         while cell.parent != start:
             row = list(old_text_board[cell.parent.y])
             row[cell.parent.x] = 'O'
             old_text_board[cell.parent.y] = ''.join(row)
             cell = cell.parent
-        lines = '\n'.join(old_text_board)
-        print(lines)
-        draw_path(old_text_board,"img/" + board_path.split("/")[2].split(".")[0] + ".png")
+
+        # If you want to se the board toString
+        #lines = '\n'.join(old_text_board)
+        #print(lines)
+
+        draw_path(copy+wall+old_text_board, "img/" + board_path.split("/")[2].split(".")[0] + ".png")
     else:
         print('A* failed')
 
 
+def main():
+    # Loop over all the txt files, use astar, and draw boards
+    files = glob("./boards/*")
+    for path in files:
+        find_shortpath_make_img(path)
 
 main()
 
