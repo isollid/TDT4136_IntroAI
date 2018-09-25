@@ -70,6 +70,31 @@ board-1-3.png
 board-1-4.png  
 
 
+## Part 2: Grids with Different Cell Costs
+So here I get use for the cost value in the Cell object. Now I need to initalize cells
+with different cost based on the letters from the .txt files. In the make_board method
+I defined the different values as this:
+ 
+``
+costs = {"w": 100, "m": 50, "f": 10, "g": 5, "r": 1}
+``
+
+The values that are not listed, like A, B, . and # is set to 1 by default. 
+The code did not need any bigg changes then just adding this value in each Cell to 
+make it work as it should.
+
+Here are my results:  
+![board1](./img/board-2-1.png)  
+board-2-1.png  
+
+![board1](./img/board-2-2.png)  
+board-2-2.png"  
+
+![board1](./img/board-2-3.png)   
+board-2-3.png  
+
+![board1](./img/board-2-4.png)   
+board-2-4.png  
 
 
 
