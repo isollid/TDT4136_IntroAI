@@ -1,5 +1,6 @@
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from glob import glob
+import os
 
 DIJKSTRA = "dijkstra"
 BFS = "bfs"
@@ -16,6 +17,18 @@ class Board:
 
         self.closed_nodes = []
         self.open_nodes = []
+
+    def cell_in_open(self, x ,y):
+        for cell in self.open_nodes:
+            if cell.x == x and cell.y == y:
+                return True
+        return False
+
+    def cell_in_closed(self,x,y):
+        for cell in self.closed_nodes:
+            if cell.x == x and cell.y == y:
+                return True
+        return False
 
 class Cell:
     """
@@ -162,19 +175,36 @@ def propagate_path_improvements(cell):
 """
 Takes a board an turn it into a png with the path from A to B visible
 """
-def draw_path(board,path):
+def draw_path(board, old_string_board, path):
     print(f"saved to {path}")
-    height = len(board)
-    width = len(board[0])
+    height = len(old_string_board)
+    width = len(old_string_board[0])
     # Map from sign on board to color
     map = {"A":(255,0,0), "B":(152,0,255), ".":(255,255,255), "O":(255,255,0), "#":(0,0,0),
            "w":(60,80,255),"m": (166, 166, 166), "f": (0, 131, 0), "g": (0, 255, 114), "r": (211, 123, 59)}
     mapped = []
     for x in range(height):
         for y in range(width):
-            mapped.append(map[board[x][y]])
+            mapped.append(map[old_string_board[x][y]])
     image = Image.new("RGB",(width,height))
     image.putdata(mapped)
+
+    """
+    # Work in progress 
+    # Draw sign if in open_nodes or closed_nodes etc
+    # Where * means open, and x means closed and " " means neither
+    draw = ImageDraw.Draw(image)
+    for x in range(height):
+        for y in range(width):
+            sign = " "
+            if board.cell_in_open(x, y):
+                sign = "*"
+            elif board.cell_in_closed(x, y):
+                sign = "x"
+            draw.text((x, y), sign, (0, 0, 0))
+    """
+
+    # Resize imaged
     image = image.resize((height * 30, width * 10))
     image.save(path)
 
@@ -209,7 +239,7 @@ def find_shortpath_make_img(board_path, algorithm=ASTAR):
         #lines = '\n'.join(old_text_board)
         #print(lines)
 
-        draw_path(copy+wall+old_text_board, "img/" + board_path.split("/")[2].split(".")[0] + ".png")
+        draw_path(board,copy+wall+old_text_board, "img/" + board_path.split("/")[2].split(".")[0] + ".png")
     else:
         print('A* failed')
 
