@@ -161,7 +161,7 @@ def draw_path(board,path):
             mapped.append(map[board[x][y]])
     image = Image.new("RGB",(width,height))
     image.putdata(mapped)
-    image = image.resize((height * 10, width * 10), Image.NEAREST)
+    image = image.resize((height * 30, width * 10))
     image.save(path)
 
 
