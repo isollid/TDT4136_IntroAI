@@ -1,6 +1,10 @@
 from PIL import Image
 from glob import glob
 
+DIJKSTRA = "dijkstra"
+BFS = "bfs"
+ASTAR = "astar"
+
 class Board:
     """
     Will represent a collection of the cells
@@ -90,8 +94,11 @@ def set_all_successors(cell, possible_cells):
 
 """
 Finds the best path from start to end
+You can change the algorithm from A* to using BFS or DIJKSTRA just by changing the algorithm parameter.
+The only differences is the way to sort their open_nodes list. 
+So instead of making redundancy, i combined the methodes.
 """
-def a_star_loop(board):
+def a_star_loop(board, algorithm=ASTAR):
     while True:
         if not board.open_nodes:
             return False  # Failed
@@ -108,11 +115,18 @@ def a_star_loop(board):
             if successor not in board.open_nodes and successor not in board.closed_nodes:
                 attach_and_evaluate(current_cell,successor,board)
                 board.open_nodes.append(successor)
-                board.open_nodes.sort(key=lambda x: x.f())  # sort by the lowest estimated cost
+
+                if algorithm == ASTAR:
+                    board.open_nodes.sort(key=lambda x: x.f())  # sort by the lowest estimated cost (ASTAR)
+                elif algorithm == DIJKSTRA:
+                    board.open_nodes.sort(key=lambda x: x.g)  # choose the cheapest path further so far (DIJKSTRA)
+                # else it will be BFS, and here we use a normal FIFO you which we have without sorting
+
             elif current_cell.g + successor.cost < successor.g:  # then you found a cheaper path
                 attach_and_evaluate(current_cell, successor,board)
                 if successor in board.closed_nodes:
                     propagate_path_improvements(successor)
+
 
 """
 The attach-and-evaluate routine simply attaches a child node to a node that is now considered its best parent
@@ -166,9 +180,9 @@ def draw_path(board,path):
 
 
 """
-Method for using astar and making image from one text file
+Method for using astar/bfs/dijkstra and making image from one text file
 """
-def find_shortpath_make_img(board_path):
+def find_shortpath_make_img(board_path, algorithm=ASTAR):
     # Build the board
     board, old_text_board = make_board(board_path)
     # Set some init values
@@ -179,7 +193,7 @@ def find_shortpath_make_img(board_path):
     board.open_nodes.append(start)
 
     # Draw result if a_star succeed
-    if a_star_loop(board):
+    if a_star_loop(board,algorithm):
         # Start in the end, and get the parent backwards to start
         cell = board.end
         # I make a copy so that it easy to compare the unsolved board with the solved board
@@ -201,10 +215,10 @@ def find_shortpath_make_img(board_path):
 
 
 def main():
-    # Loop over all the txt files, use astar, and draw boards
+    # Loop over all the txt files, use astar/dijkstra/bfs, and draw boards
     files = glob("./boards/*")
     for path in files:
-        find_shortpath_make_img(path)
+        find_shortpath_make_img(path,ASTAR)
 
 main()
 
