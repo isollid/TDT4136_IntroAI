@@ -57,10 +57,7 @@ In my draw method, I first draw the old board, and then concatenate it with the 
 where the shortest path is set. 
 
 Here are my results:  
-![board1](./img/board-1-1.png)  
-board-1-1.png  
-
-![board1](./img/board-1-2.png)  
+![board1](./img/board-1-1.png)![board1](./img/board-1-2.png)  
 board-1-2.png"  
 
 ![board1](./img/board-1-3.png)   
