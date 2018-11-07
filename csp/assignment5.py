@@ -278,10 +278,12 @@ def print_sudoku_solution(solution):
 
 def main():
     # Make CSP with variables, domain and constraints
-    csp = create_sudoku_csp("./sudokus/veryhard.txt")
+    path = "./sudokus/veryhard.txt"
+    csp = create_sudoku_csp(path)
 
     # Print solution
     print("\n")
+    print(path.split("/")[-1])
     print_sudoku_solution(csp.backtracking_search())
     print("backtracked", csp.number_of_backtracks)
     print("failed backtracked", csp.number_of_backtracks_failed)
