@@ -144,8 +144,9 @@ class CSP:
                 result = self.backtrack(new_assignment)
                 if result:
                     return result
-            if var in assignment.keys():
-                del assignment[var]
+            # It seems like we do not have to delete since we make a copy of assignment
+            if var in new_assignment.keys():
+                del new_assignment[var]
 
         # Failed
         self.number_of_backtracks_failed += 1
@@ -209,8 +210,6 @@ class CSP:
                 cp.remove(x)
         assignment[xi] = cp
         return revised
-
-
 
 
 def create_map_coloring_csp():
